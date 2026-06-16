@@ -1,0 +1,1063 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Voo.do Elite | IT Dashboard</title>
+  <script>if(localStorage.getItem('voodo-theme')==='light')document.documentElement.classList.add('light');</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* ── Dark theme (default) ── */
+    :root {
+      --bg: #080c14;
+      --sidebar-bg: rgba(12, 18, 30, 0.95);
+      --card-bg: rgba(18, 24, 38, 0.7);
+      --card-border: rgba(255, 255, 255, 0.07);
+      --folder-bg: rgba(255, 255, 255, 0.03);
+      --folder-border: rgba(255, 255, 255, 0.06);
+      --header-bg: rgba(8,12,20,0.85);
+      --text: #e2e8f0;
+      --text-strong: #f1f5f9;
+      --muted: #64748b;
+      --accent: #3b82f6;
+      --accent-soft: rgba(59, 130, 246, 0.12);
+      --success: #10b981;
+      --error: #ef4444;
+      --warning: #f59e0b;
+      --radial-1: rgba(59,130,246,0.07);
+      --radial-2: rgba(16,185,129,0.05);
+      --chip-bg: rgba(255,255,255,0.05);
+      --steps-bg: rgba(0,0,0,0.25);
+      --steps-code-color: #a5b4fc;
+      --scrollbar-thumb: rgba(255,255,255,0.08);
+      --folder-hover: rgba(255,255,255,0.03);
+      --card-hover-border: rgba(255,255,255,0.12);
+      --toggle-idle-bg: rgba(255,255,255,0.12);
+    }
+
+    /* ── Light theme ── */
+    html.light {
+      --bg: #f0f4f8;
+      --sidebar-bg: rgba(255, 255, 255, 0.97);
+      --card-bg: rgba(255, 255, 255, 0.9);
+      --card-border: rgba(0, 0, 0, 0.08);
+      --folder-bg: rgba(0, 0, 0, 0.02);
+      --folder-border: rgba(0, 0, 0, 0.07);
+      --header-bg: rgba(240,244,248,0.92);
+      --text: #1e293b;
+      --text-strong: #0f172a;
+      --muted: #64748b;
+      --accent: #2563eb;
+      --accent-soft: rgba(37, 99, 235, 0.1);
+      --success: #059669;
+      --error: #dc2626;
+      --warning: #d97706;
+      --radial-1: rgba(37,99,235,0.05);
+      --radial-2: rgba(5,150,105,0.04);
+      --chip-bg: rgba(0,0,0,0.05);
+      --steps-bg: rgba(0,0,0,0.04);
+      --steps-code-color: #3730a3;
+      --scrollbar-thumb: rgba(0,0,0,0.12);
+      --folder-hover: rgba(0,0,0,0.02);
+      --card-hover-border: rgba(0,0,0,0.15);
+      --toggle-idle-bg: rgba(0,0,0,0.12);
+    }
+
+    *, *::before, *::after {
+      transition: background-color 0.25s ease, border-color 0.25s ease, color 0.15s ease, box-shadow 0.25s ease;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background-image:
+        radial-gradient(ellipse at 10% 40%, rgba(59,130,246,0.07) 0%, transparent 50%),
+        radial-gradient(ellipse at 90% 10%, rgba(16,185,129,0.05) 0%, transparent 40%);
+    }
+
+    /* ── Header ── */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 40px;
+      border-bottom: 1px solid var(--card-border);
+      background: var(--header-bg);
+      backdrop-filter: blur(16px);
+      box-shadow: 0 1px 0 var(--card-border);
+      position: sticky; top: 0; z-index: 100;
+    }
+    .logo-wrap { display: flex; align-items: center; gap: 10px; }
+    .logo { font-size: 22px; font-weight: 700; background: linear-gradient(135deg,#60a5fa,#a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .pill { font-size: 10px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; padding: 3px 8px; border-radius: 4px; }
+    .pill-it { background: rgba(59,130,246,0.15); color: #60a5fa; border: 1px solid rgba(59,130,246,0.25); }
+    .pill-auth { background: rgba(16,185,129,0.1); color: #34d399; border: 1px solid rgba(16,185,129,0.2); }
+
+    /* ── Layout ── */
+    .layout { display: flex; flex: 1; min-height: 0; }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: 240px;
+      flex-shrink: 0;
+      background: var(--sidebar-bg);
+      border-right: 1px solid var(--card-border);
+      padding: 24px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      overflow-y: auto;
+    }
+    .sidebar-title { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; padding: 8px 8px 4px; }
+    .sidebar-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 12px; border-radius: 8px;
+      font-size: 13px; font-weight: 500; color: var(--muted);
+      cursor: pointer; transition: all 0.15s; border: 1px solid transparent;
+    }
+    .sidebar-item:hover { background: rgba(255,255,255,0.05); color: var(--text); }
+    .sidebar-item.active { background: var(--accent-soft); color: #93c5fd; border-color: rgba(59,130,246,0.2); }
+    .sidebar-item .count {
+      margin-left: auto; font-size: 11px; font-weight: 600;
+      background: rgba(255,255,255,0.08); padding: 2px 7px; border-radius: 10px; color: var(--muted);
+    }
+    .sidebar-item.active .count { background: rgba(59,130,246,0.2); color: #60a5fa; }
+    .sidebar-item.pending-count .count { background: rgba(245,158,11,0.15); color: var(--warning); }
+    .app-emoji { font-size: 16px; width: 20px; text-align: center; }
+    .sidebar-divider { border: none; border-top: 1px solid var(--card-border); margin: 8px 0; }
+
+    /* ── Main ── */
+    main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+    .topbar {
+      padding: 20px 32px 16px;
+      display: flex; align-items: center; justify-content: space-between; gap: 16px;
+      border-bottom: 1px solid var(--card-border);
+    }
+    .topbar h1 { font-size: 20px; font-weight: 600; }
+    .topbar p { font-size: 13px; color: var(--muted); margin-top: 2px; }
+
+    .topbar-right { display: flex; align-items: center; gap: 10px; }
+
+    .btn-propose {
+      display: flex; align-items: center; gap: 6px;
+      background: var(--accent); color: white;
+      border: none; border-radius: 8px;
+      padding: 8px 16px; font-size: 13px; font-weight: 600;
+      cursor: pointer; font-family: inherit;
+      transition: opacity 0.2s; white-space: nowrap;
+    }
+    .btn-propose:hover { opacity: 0.85; }
+
+    .search-wrap { position: relative; }
+    #search {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 8px 12px 8px 36px;
+      color: var(--text);
+      font-size: 13px; font-family: inherit;
+      width: 220px; outline: none;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    #search:focus { border-color: rgba(59,130,246,0.4); background: rgba(59,130,246,0.05); }
+    #search::placeholder { color: var(--muted); }
+    .search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; }
+
+    .content { flex: 1; overflow-y: auto; padding: 24px 32px 40px; }
+    .content::-webkit-scrollbar { width: 6px; }
+    .content::-webkit-scrollbar-track { background: transparent; }
+    .content::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 4px; }
+
+    /* ── Folder / Category ── */
+    .folder {
+      border: 1px solid var(--folder-border);
+      border-radius: 14px;
+      overflow: hidden;
+      margin-bottom: 16px;
+      background: var(--folder-bg);
+      transition: border-color 0.2s;
+    }
+    .folder:hover { border-color: var(--card-hover-border); }
+
+    .folder-header {
+      display: flex; align-items: center; gap: 12px;
+      padding: 14px 20px;
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.15s;
+    }
+    .folder-header:hover { background: var(--folder-hover); }
+
+    .folder-icon-wrap {
+      width: 36px; height: 36px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; flex-shrink: 0;
+    }
+    .folder-name { font-size: 15px; font-weight: 600; flex: 1; }
+    .folder-stats { display: flex; gap: 8px; align-items: center; }
+    .folder-stat { font-size: 12px; padding: 3px 8px; border-radius: 20px; font-weight: 500; }
+    .stat-total { background: var(--chip-bg); color: var(--muted); }
+    .stat-ok { background: rgba(16,185,129,0.1); color: var(--success); border: 1px solid rgba(16,185,129,0.2); }
+    .stat-fail { background: rgba(239,68,68,0.1); color: var(--error); border: 1px solid rgba(239,68,68,0.2); }
+    .chevron { color: var(--muted); transition: transform 0.25s ease; flex-shrink: 0; }
+    .folder.open .chevron { transform: rotate(90deg); }
+
+    .folder-body { display: none; border-top: 1px solid var(--folder-border); }
+    .folder.open .folder-body { display: block; }
+
+    /* ── Solution cards ── */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 12px;
+      padding: 16px;
+    }
+
+    .sol-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 16px;
+      display: flex; flex-direction: column; gap: 12px;
+      transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+    }
+    .sol-card:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+      border-color: var(--card-hover-border);
+    }
+    .sol-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+    .sol-summary { font-size: 14px; font-weight: 500; line-height: 1.5; color: var(--text-strong); }
+    .status-badge {
+      display: flex; align-items: center; gap: 5px;
+      font-size: 11px; font-weight: 700; padding: 3px 9px;
+      border-radius: 20px; flex-shrink: 0; text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .status-badge.ok { background: rgba(16,185,129,0.1); color: var(--success); border: 1px solid rgba(16,185,129,0.2); }
+    .status-badge.fail { background: rgba(239,68,68,0.1); color: var(--error); border: 1px solid rgba(239,68,68,0.2); }
+    .dot { width: 5px; height: 5px; border-radius: 50%; }
+    .ok .dot { background: var(--success); box-shadow: 0 0 6px var(--success); }
+    .fail .dot { background: var(--error); box-shadow: 0 0 6px var(--error); }
+
+    .sol-meta { display: flex; gap: 8px; flex-wrap: wrap; }
+    .meta-chip { font-size: 11px; background: var(--chip-bg); border: 1px solid var(--card-border); padding: 3px 8px; border-radius: 4px; color: var(--muted); }
+
+    details.steps-wrap { background: var(--steps-bg); border: 1px solid var(--card-border); border-radius: 8px; overflow: hidden; }
+    details > summary { list-style: none; }
+    details > summary::-webkit-details-marker { display: none; }
+    .steps-toggle {
+      padding: 10px 14px; font-size: 12px; font-weight: 500;
+      color: var(--muted); cursor: pointer; display: flex; align-items: center; gap: 6px;
+      transition: color 0.15s, background 0.15s;
+    }
+    .steps-toggle:hover { color: var(--text); background: var(--folder-hover); }
+    .steps-body {
+      padding: 12px 14px;
+      border-top: 1px solid var(--card-border);
+      font-family: 'Consolas','Monaco',monospace;
+      font-size: 11.5px; color: var(--steps-code-color);
+      white-space: pre-wrap; max-height: 180px; overflow-y: auto;
+    }
+    .steps-body::-webkit-scrollbar { width: 4px; }
+    .steps-body::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 4px; }
+
+    .chevron-sm { transition: transform 0.2s; flex-shrink: 0; }
+    details[open] .chevron-sm { transform: rotate(90deg); }
+
+    /* ── Delete request button ── */
+    .btn-delete-request {
+      width: 100%; background: transparent;
+      border: 1px solid rgba(239,68,68,0.2); border-radius: 6px;
+      padding: 6px 12px; font-size: 11px; font-weight: 500;
+      color: var(--error); cursor: pointer; font-family: inherit;
+      transition: all 0.15s;
+    }
+    .btn-delete-request:hover { background: rgba(239,68,68,0.08); border-color: rgba(239,68,68,0.4); }
+
+    /* ── Cancel own request button ── */
+    .btn-cancel-request {
+      margin-top: 10px; width: 100%;
+      background: transparent;
+      border: 1px solid rgba(239,68,68,0.25); border-radius: 6px;
+      padding: 6px 12px; font-size: 12px; font-weight: 500;
+      color: var(--error); cursor: pointer; font-family: inherit;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      transition: all 0.18s;
+    }
+    .btn-cancel-request:hover { background: rgba(239,68,68,0.1); border-color: rgba(239,68,68,0.5); transform: scale(1.01); }
+
+    /* ── Close IT portal button ── */
+    .btn-close-portal {
+      width: 34px; height: 34px; border-radius: 8px;
+      background: rgba(239,68,68,0.07);
+      border: 1px solid rgba(239,68,68,0.2);
+      color: var(--error); cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s; flex-shrink: 0;
+    }
+    .btn-close-portal:hover {
+      background: rgba(239,68,68,0.15);
+      border-color: rgba(239,68,68,0.45);
+      transform: scale(1.08);
+    }
+
+    /* ── Empty / Loading ── */
+    .state-center { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 80px 0; gap: 16px; color: var(--muted); }
+    .spinner { width: 28px; height: 28px; border: 3px solid rgba(255,255,255,0.08); border-radius: 50%; border-top-color: var(--accent); animation: spin 0.9s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Theme toggle button ── */
+    .theme-toggle {
+      display: flex; align-items: center; gap: 8px;
+      background: var(--folder-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 5px 12px 5px 8px;
+      cursor: pointer;
+      font-size: 12px; font-weight: 500;
+      color: var(--muted);
+      font-family: 'Inter', sans-serif;
+      transition: all 0.2s;
+    }
+    .theme-toggle:hover { border-color: var(--accent); color: var(--text); background: var(--accent-soft); }
+
+    .toggle-track {
+      width: 32px; height: 18px;
+      background: var(--card-border);
+      border-radius: 9px;
+      position: relative;
+      transition: background 0.25s;
+      flex-shrink: 0;
+    }
+    html.light .toggle-track { background: var(--accent); }
+    .toggle-thumb {
+      position: absolute; top: 2px; left: 2px;
+      width: 14px; height: 14px;
+      background: white;
+      border-radius: 50%;
+      transition: transform 0.25s ease;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    }
+    html.light .toggle-thumb { transform: translateX(14px); }
+
+    .header-right { display: flex; align-items: center; gap: 12px; }
+
+    /* ── Modals ── */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
+      z-index: 1000; align-items: center; justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-box {
+      background: var(--card-bg); border: 1px solid var(--card-border);
+      border-radius: 16px; width: 540px; max-width: 92vw;
+      overflow: hidden; box-shadow: 0 24px 64px rgba(0,0,0,0.45);
+    }
+    .modal-header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 20px 24px; border-bottom: 1px solid var(--card-border);
+    }
+    .modal-header h3 { font-size: 16px; font-weight: 600; }
+    .modal-close {
+      background: none; border: none; color: var(--muted);
+      font-size: 22px; cursor: pointer; line-height: 1; padding: 0 4px;
+      font-family: inherit; transition: color 0.15s;
+    }
+    .modal-close:hover { color: var(--text); }
+    .modal-body { padding: 20px 24px; display: flex; flex-direction: column; gap: 16px; }
+    .modal-footer {
+      padding: 16px 24px; border-top: 1px solid var(--card-border);
+      display: flex; justify-content: flex-end; gap: 10px;
+    }
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-group label { font-size: 12px; font-weight: 500; color: var(--muted); }
+    .req-mark { color: var(--error); }
+    .form-group input, .form-group textarea {
+      background: rgba(255,255,255,0.05); border: 1px solid var(--card-border);
+      border-radius: 8px; padding: 9px 12px;
+      color: var(--text); font-size: 13px; font-family: inherit;
+      outline: none; resize: vertical;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .form-group input:focus, .form-group textarea:focus {
+      border-color: rgba(59,130,246,0.4); background: rgba(59,130,246,0.05);
+    }
+    .form-group input::placeholder, .form-group textarea::placeholder { color: var(--muted); }
+    .modal-info-box {
+      background: var(--folder-bg); border: 1px solid var(--folder-border);
+      border-radius: 8px; padding: 12px 14px; display: flex; flex-direction: column; gap: 4px;
+    }
+    .modal-info-label { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    .modal-info-value { font-size: 13px; color: var(--text-strong); line-height: 1.4; }
+    .btn-cancel {
+      background: transparent; border: 1px solid var(--card-border);
+      border-radius: 8px; padding: 8px 16px; font-size: 13px;
+      color: var(--muted); cursor: pointer; font-family: inherit; transition: all 0.15s;
+    }
+    .btn-cancel:hover { border-color: var(--accent); color: var(--text); }
+    .btn-submit {
+      background: var(--accent); color: white; border: none;
+      border-radius: 8px; padding: 8px 20px; font-size: 13px; font-weight: 600;
+      cursor: pointer; font-family: inherit; transition: opacity 0.2s;
+    }
+    .btn-submit:hover { opacity: 0.85; }
+    .btn-submit.btn-danger { background: var(--error); }
+    .btn-submit:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    /* ── My Requests view ── */
+    .req-list { display: flex; flex-direction: column; gap: 12px; }
+    .req-card {
+      background: var(--card-bg); border: 1px solid var(--card-border);
+      border-radius: 10px; padding: 16px; display: flex; flex-direction: column; gap: 10px;
+      transition: border-color 0.15s;
+    }
+    .req-card:hover { border-color: var(--card-hover-border); }
+    .req-top { display: flex; align-items: flex-start; gap: 10px; flex-wrap: wrap; }
+    .req-type-badge {
+      font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 4px; flex-shrink: 0;
+    }
+    .req-type-badge.add { background: rgba(59,130,246,0.12); color: #60a5fa; border: 1px solid rgba(59,130,246,0.2); }
+    .req-type-badge.delete { background: rgba(239,68,68,0.1); color: var(--error); border: 1px solid rgba(239,68,68,0.2); }
+    .req-status-badge {
+      font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 20px;
+      text-transform: uppercase; letter-spacing: 0.4px; flex-shrink: 0;
+    }
+    .req-status-badge.pending { background: rgba(245,158,11,0.1); color: var(--warning); border: 1px solid rgba(245,158,11,0.2); }
+    .req-status-badge.approved { background: rgba(16,185,129,0.1); color: var(--success); border: 1px solid rgba(16,185,129,0.2); }
+    .req-status-badge.rejected { background: rgba(239,68,68,0.1); color: var(--error); border: 1px solid rgba(239,68,68,0.2); }
+    .req-summary { font-size: 14px; font-weight: 500; color: var(--text-strong); line-height: 1.4; flex: 1; min-width: 0; }
+    .req-field { font-size: 12px; color: var(--muted); line-height: 1.5; }
+    .req-field strong { color: var(--text); font-weight: 500; }
+    .req-reviewer-note {
+      font-size: 12px; background: var(--folder-bg); border: 1px solid var(--folder-border);
+      border-radius: 6px; padding: 8px 12px; color: var(--text); line-height: 1.4;
+    }
+    .req-reviewer-note strong { color: var(--accent); }
+    .req-meta { font-size: 11px; color: var(--muted); }
+    .req-empty { display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 60px 0; color: var(--muted); }
+
+    /* ── Toast notifications ── */
+    .toast {
+      position: fixed; bottom: 24px; right: 24px;
+      padding: 12px 20px; border-radius: 10px;
+      font-size: 13px; font-weight: 500; z-index: 2000;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+      animation: toast-in 0.3s ease;
+    }
+    .toast.success { background: rgba(16,185,129,0.92); color: white; }
+    .toast.error { background: rgba(239,68,68,0.92); color: white; }
+    @keyframes toast-in { from { transform: translateY(16px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo-wrap">
+    <div class="logo">Voo.do</div>
+    <div class="pill pill-it">IT Admin</div>
+  </div>
+  <div class="header-right">
+    <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Switch theme">
+      <div class="toggle-track"><div class="toggle-thumb"></div></div>
+      <span id="themeLabel">Light Mode</span>
+    </button>
+    <div class="pill pill-auth">🔒 Authorized Personnel</div>
+  </div>
+</header>
+
+<div class="layout">
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-title">Categories</div>
+    <div class="sidebar-item active" data-cat="all" id="cat-all" onclick="filterCategory('all')">
+      <span class="app-emoji">📂</span> All
+      <span class="count" id="cnt-all">0</span>
+    </div>
+    <!-- Dynamic category items injected here -->
+
+    <hr class="sidebar-divider">
+    <div class="sidebar-title">Actions</div>
+    <div class="sidebar-item" id="view-requests" onclick="switchView('requests')">
+      <span class="app-emoji">📋</span> My Requests
+      <span class="count" id="cnt-requests"></span>
+    </div>
+  </nav>
+
+  <main>
+    <div class="topbar">
+      <div>
+        <h1 id="topbar-title">Resolution Center</h1>
+        <p id="topbar-sub">All agent interventions grouped by application</p>
+      </div>
+      <div class="topbar-right">
+        <button class="btn-propose" onclick="openProposeModal()">+ Propose New Action</button>
+        <div class="search-wrap" id="search-wrap">
+          <svg class="search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input id="search" type="text" placeholder="Search issues..." oninput="applySearch(this.value)">
+        </div>
+        <button class="btn-close-portal" onclick="closeITPortal()" title="Back to main page">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="content" id="content">
+      <div class="state-center">
+        <div class="spinner"></div>
+        <span>Fetching secure logs…</span>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ── Propose New Action Modal ── -->
+<div id="modal-propose" class="modal-overlay" onclick="closeProposeIfBg(event)">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3>Propose New Action</h3>
+      <button class="modal-close" onclick="closeProposeModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Problem Summary <span class="req-mark">*</span></label>
+        <input id="f-problem" type="text" placeholder="e.g. VPN not connecting after Windows update">
+      </div>
+      <div class="form-group">
+        <label>How to Fix It <span class="req-mark">*</span></label>
+        <textarea id="f-fix" rows="5" placeholder="Describe the steps the agent should take to resolve this problem…"></textarea>
+      </div>
+      <div class="form-group">
+        <label>Reason for Adding</label>
+        <input id="f-reason" type="text" placeholder="Why should this be added to the agent's knowledge?">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeProposeModal()">Cancel</button>
+      <button class="btn-submit" id="btn-propose-submit" onclick="submitProposal()">Submit for Approval</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Request Deletion Modal ── -->
+<div id="modal-delete" class="modal-overlay" onclick="closeDeleteIfBg(event)">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3>Request Deletion</h3>
+      <button class="modal-close" onclick="closeDeleteModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-info-box">
+        <div class="modal-info-label">Solution to remove</div>
+        <div class="modal-info-value" id="del-summary"></div>
+      </div>
+      <div class="form-group">
+        <label>Reason for Deletion <span class="req-mark">*</span></label>
+        <textarea id="del-reason" rows="3" placeholder="Why should this solution be removed from the agent?"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeDeleteModal()">Cancel</button>
+      <button class="btn-submit btn-danger" id="btn-delete-submit" onclick="submitDeletion()">Request Deletion</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── App detection rules ──────────────────────────────────────────────
+const APP_RULES = [
+  { key: 'zoom',    label: 'Zoom',             emoji: '📹', icon: 'https://www.google.com/s2/favicons?domain=zoom.us&sz=128',              color: '#2D8CFF', bg: 'rgba(45,140,255,0.12)', keywords: ['zoom','meeting','camera','video call','webinar','join meeting'] },
+  { key: 'chrome',  label: 'Google Chrome',    emoji: '🌐', icon: 'https://www.google.com/s2/favicons?domain=google.com/chrome&sz=128',    color: '#4285F4', bg: 'rgba(66,133,244,0.12)', keywords: ['chrome','browser','tab','extension','google chrome','website','webpage','internet'] },
+  { key: 'word',    label: 'Microsoft Word',   emoji: '📝', icon: 'https://img.icons8.com/color/48/microsoft-word-2019.png',                color: '#2B579A', bg: 'rgba(43,87,154,0.12)',  keywords: ['word','document','docx','microsoft word','spell check','doc'] },
+  { key: 'excel',   label: 'Microsoft Excel',  emoji: '📊', color: '#217346', bg: 'rgba(33,115,70,0.12)',  keywords: ['excel','spreadsheet','xlsx','pivot','formula','csv'] },
+  { key: 'teams',   label: 'Microsoft Teams',  emoji: '💬', color: '#6264A7', bg: 'rgba(98,100,167,0.12)', keywords: ['teams','microsoft teams','channels','team meeting'] },
+  { key: 'outlook', label: 'Outlook / Email',  emoji: '📧', color: '#0078D4', bg: 'rgba(0,120,212,0.12)',  keywords: ['outlook','email','mail','inbox','calendar','pst','smtp'] },
+  { key: 'windows', label: 'Windows / System', emoji: '🖥️', color: '#00ADEF', bg: 'rgba(0,173,239,0.12)',  keywords: ['windows','startup','bsod','blue screen','task manager','registry','slow','cpu','ram','driver','update','system','boot','disk'] },
+  { key: 'network', label: 'Network / Wi-Fi',  emoji: '📡', color: '#10b981', bg: 'rgba(16,185,129,0.12)', keywords: ['wifi','network','internet','vpn','dns','ip','connection','ethernet','router','ping'] },
+  { key: 'printer', label: 'Printer',          emoji: '🖨️', color: '#f59e0b', bg: 'rgba(245,158,11,0.12)', keywords: ['print','printer','scan','scanner','ink','toner'] },
+];
+
+function detectApp(summary) {
+  const s = summary.toLowerCase();
+  for (const rule of APP_RULES) {
+    if (rule.keywords.some(k => s.includes(k))) return rule;
+  }
+  return { key: 'other', label: 'Other', emoji: '🔧', color: '#94a3b8', bg: 'rgba(148,163,184,0.1)' };
+}
+
+// ── State ────────────────────────────────────────────────────────────
+let allSolutions = [];
+let myRequests = [];
+let activeCategory = 'all';
+let activeView = 'solutions';
+let searchQuery = '';
+let pendingDeleteId = null;
+
+// ── Toast ────────────────────────────────────────────────────────────
+function showToast(msg, type = 'success') {
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 3500);
+}
+
+async function cancelRequest(id, btn) {
+  btn.disabled = true;
+  btn.textContent = 'Cancelling…';
+  try {
+    let res;
+    try {
+      res = await fetch(`/api/pending-changes/${id}`, { method: 'DELETE', credentials: 'include' });
+    } catch {
+      showToast('Server unreachable — make sure the backend is running', 'error');
+      btn.disabled = false;
+      btn.textContent = '× Cancel Request';
+      return;
+    }
+    if (res.status === 401) { showToast('Session expired — refresh the page', 'error'); btn.disabled = false; btn.textContent = '× Cancel Request'; return; }
+    if (res.status === 404) { showToast('Request already reviewed — cannot cancel', 'error'); btn.disabled = false; btn.textContent = '× Cancel Request'; return; }
+    if (!res.ok) { showToast(`Error: HTTP ${res.status}`, 'error'); btn.disabled = false; btn.textContent = '× Cancel Request'; return; }
+    showToast('Request cancelled');
+    await loadMyRequests();
+  } catch (e) {
+    showToast(`Error: ${e.message}`, 'error');
+    btn.disabled = false;
+    btn.textContent = '× Cancel Request';
+  }
+}
+
+function closeITPortal() {
+  // Invalidate Basic Auth cache by sending a request with wrong credentials,
+  // so the browser will prompt for credentials again next time.
+  try {
+    const xhr = new XMLHttpRequest();
+    xhr.open('GET', '/it', false, '__logout__', '__logout__');
+    xhr.send();
+  } catch (_) {}
+  window.location.href = '/';
+}
+
+// ── Fetch solutions ──────────────────────────────────────────────────
+async function loadSolutions() {
+  try {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 8000);
+    let res;
+    try {
+      res = await fetch('/api/solutions', { credentials: 'include', signal: ctrl.signal });
+    } finally {
+      clearTimeout(timer);
+    }
+    if (!res.ok) {
+      // Surface the server's error body so a 5xx isn't a mystery.
+      // FastAPI returns {"detail": "..."} for HTTPException; older 500s
+      // return plain text. Try JSON first, fall back to text.
+      let detail = '';
+      try {
+        const body = await res.clone().json();
+        detail = body.detail || JSON.stringify(body);
+      } catch {
+        try { detail = await res.text(); } catch { /* ignore */ }
+      }
+      const trimmed = (detail || '').slice(0, 240);
+      throw new Error(`HTTP ${res.status}${trimmed ? ' — ' + trimmed : ''}`);
+    }
+    allSolutions = await res.json();
+    if (activeView === 'solutions') render();
+  } catch (e) {
+    const msg = e.name === 'AbortError' ? 'Database not reachable — running without logs' : `Failed to load: ${e.message}`;
+    document.getElementById('content').innerHTML = `
+      <div class="state-center">
+        <span style="font-size:32px">${e.name === 'AbortError' ? '🔌' : '⚠️'}</span>
+        <span style="color:var(--muted, #888)">${msg}</span>
+      </div>`;
+  }
+}
+
+// ── Fetch my requests ────────────────────────────────────────────────
+async function loadMyRequests() {
+  try {
+    const res = await fetch('/api/pending-changes', { credentials: 'same-origin' });
+    if (!res.ok) return;
+    myRequests = await res.json();
+    const pendingCount = myRequests.filter(r => r.status === 'pending').length;
+    const el = document.getElementById('cnt-requests');
+    el.textContent = pendingCount > 0 ? pendingCount : '';
+    el.style.display = pendingCount > 0 ? '' : 'none';
+    document.getElementById('view-requests').classList.toggle('pending-count', pendingCount > 0);
+    if (activeView === 'requests') renderMyRequests();
+  } catch (_) { /* silent */ }
+}
+
+// ── View switching ───────────────────────────────────────────────────
+function switchView(view) {
+  activeView = view;
+  const isRequests = view === 'requests';
+  document.getElementById('view-requests').classList.toggle('active', isRequests);
+  document.getElementById('search-wrap').style.display = isRequests ? 'none' : '';
+  document.querySelectorAll('.sidebar-item[data-cat]').forEach(el => {
+    el.classList.toggle('active', !isRequests && el.dataset.cat === activeCategory);
+  });
+  if (isRequests) {
+    document.getElementById('topbar-title').textContent = 'My Requests';
+    document.getElementById('topbar-sub').textContent = 'Actions pending Voodo approval';
+    renderMyRequests();
+  } else {
+    document.getElementById('topbar-title').textContent = 'Resolution Center';
+    document.getElementById('topbar-sub').textContent = 'All agent interventions grouped by application';
+    render();
+  }
+}
+
+// ── Category sidebar ─────────────────────────────────────────────────
+function buildSidebar(grouped) {
+  const sidebar = document.getElementById('sidebar');
+  sidebar.querySelectorAll('.sidebar-item:not(#cat-all):not(#view-requests)').forEach(el => el.remove());
+
+  const divider = sidebar.querySelector('.sidebar-divider');
+
+  const allCnt = allSolutions.filter(s => matchesSearch(s)).length;
+  document.getElementById('cnt-all').textContent = allCnt;
+
+  for (const [key, items] of Object.entries(grouped)) {
+    const rule = APP_RULES.find(r => r.key === key) || { key, label: key, emoji: '🔧' };
+    const div = document.createElement('div');
+    div.className = 'sidebar-item' + (activeView === 'solutions' && activeCategory === key ? ' active' : '');
+    div.id = `cat-${key}`;
+    div.setAttribute('data-cat', key);
+    div.onclick = () => filterCategory(key);
+    const iconHtml = rule.icon
+      ? `<img src="${rule.icon}" width="20" height="20" style="border-radius:5px;object-fit:contain;flex-shrink:0;" />`
+      : `<span class="app-emoji">${rule.emoji}</span>`;
+    div.innerHTML = `${iconHtml} ${rule.label}<span class="count">${items.length}</span>`;
+    sidebar.insertBefore(div, divider);
+  }
+}
+
+// ── Filter helpers ───────────────────────────────────────────────────
+function matchesSearch(sol) {
+  if (!searchQuery) return true;
+  return sol.problem_summary.toLowerCase().includes(searchQuery.toLowerCase());
+}
+
+function filterCategory(cat) {
+  activeView = 'solutions';
+  activeCategory = cat;
+  document.getElementById('view-requests').classList.remove('active');
+  document.getElementById('search-wrap').style.visibility = '';
+  document.getElementById('topbar-title').textContent = 'Resolution Center';
+  document.getElementById('topbar-sub').textContent = 'All agent interventions grouped by application';
+  document.querySelectorAll('.sidebar-item[data-cat]').forEach(el => {
+    el.classList.toggle('active', el.dataset.cat === cat);
+  });
+  render();
+}
+
+function applySearch(q) {
+  searchQuery = q;
+  render();
+}
+
+// ── Render solutions ─────────────────────────────────────────────────
+function render() {
+  const filtered = allSolutions.filter(matchesSearch);
+
+  const grouped = {};
+  for (const sol of filtered) {
+    const app = detectApp(sol.problem_summary);
+    if (!grouped[app.key]) grouped[app.key] = { rule: app, items: [] };
+    grouped[app.key].items.push(sol);
+  }
+
+  buildSidebar(Object.fromEntries(Object.entries(grouped).map(([k,v]) => [k, v.items])));
+
+  const content = document.getElementById('content');
+
+  if (filtered.length === 0) {
+    content.innerHTML = `<div class="state-center"><span style="font-size:32px">🔍</span><span>No results found</span></div>`;
+    return;
+  }
+
+  const show = activeCategory === 'all' ? grouped : (grouped[activeCategory] ? { [activeCategory]: grouped[activeCategory] } : {});
+
+  if (Object.keys(show).length === 0) {
+    content.innerHTML = `<div class="state-center"><span style="font-size:32px">📂</span><span>No results in this category</span></div>`;
+    return;
+  }
+
+  content.innerHTML = '';
+  for (const [key, { rule, items }] of Object.entries(show)) {
+    const ok = items.filter(s => s.success).length;
+    const fail = items.length - ok;
+
+    const folder = document.createElement('div');
+    folder.className = 'folder open';
+    folder.id = `folder-${key}`;
+
+    folder.innerHTML = `
+      <div class="folder-header" onclick="toggleFolder('${key}')">
+        <div class="folder-icon-wrap" style="background:${rule.bg}">
+          ${rule.icon
+            ? `<img src="${rule.icon}" width="26" height="26" style="border-radius:6px;object-fit:contain;" />`
+            : `<span style="font-size:20px">${rule.emoji}</span>`}
+        </div>
+        <span class="folder-name">${rule.label}</span>
+        <div class="folder-stats">
+          <span class="folder-stat stat-total">${items.length} issues</span>
+          ${ok ? `<span class="folder-stat stat-ok">✓ ${ok}</span>` : ''}
+          ${fail ? `<span class="folder-stat stat-fail">✗ ${fail}</span>` : ''}
+        </div>
+        <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+      <div class="folder-body">
+        <div class="cards-grid" id="grid-${key}"></div>
+      </div>`;
+    content.appendChild(folder);
+
+    const grid = folder.querySelector(`#grid-${key}`);
+    for (const sol of items) {
+      grid.appendChild(buildCard(sol));
+    }
+  }
+}
+
+function toggleFolder(key) {
+  document.getElementById(`folder-${key}`).classList.toggle('open');
+}
+
+function buildCard(sol) {
+  const card = document.createElement('div');
+  card.className = 'sol-card';
+  const ok = sol.success;
+  const stepsJson = JSON.stringify(sol.steps, null, 2);
+  const stepCount = Array.isArray(sol.steps) ? sol.steps.length : '?';
+  const shortId = (sol.id || '').substring(0, 8);
+
+  card.innerHTML = `
+    <div class="sol-header">
+      <div class="sol-summary">${sol.problem_summary}</div>
+      <div class="status-badge ${ok ? 'ok' : 'fail'}">
+        <div class="dot"></div>${ok ? 'Resolved' : 'Failed'}
+      </div>
+    </div>
+    <div class="sol-meta">
+      <span class="meta-chip">OS: ${sol.os || 'unknown'}</span>
+      <span class="meta-chip">ID: ${shortId}…</span>
+      <span class="meta-chip">${stepCount} steps</span>
+    </div>
+    <details class="steps-wrap">
+      <summary>
+        <div class="steps-toggle">
+          <svg class="chevron-sm" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+          View Execution Steps (${stepCount})
+        </div>
+      </summary>
+      <pre class="steps-body">${stepsJson}</pre>
+    </details>`;
+
+  const deleteBtn = document.createElement('button');
+  deleteBtn.className = 'btn-delete-request';
+  deleteBtn.textContent = 'Request Deletion';
+  deleteBtn.addEventListener('click', () => openDeleteModal(sol.id, sol.problem_summary));
+  card.appendChild(deleteBtn);
+
+  return card;
+}
+
+// ── Render my requests ───────────────────────────────────────────────
+function renderMyRequests() {
+  const content = document.getElementById('content');
+  if (myRequests.length === 0) {
+    content.innerHTML = `
+      <div class="req-empty">
+        <span style="font-size:36px">📋</span>
+        <h3 style="margin:8px 0 6px;font-size:16px;">No requests yet</h3>
+        <p style="margin:0 0 18px;opacity:0.55;font-size:13px;max-width:320px;text-align:center;line-height:1.5;">
+          Use <strong>+ Propose New Action</strong> to suggest a fix or a new workflow.<br>
+          A Voodo admin will review it before anything goes live.
+        </p>
+        <button class="btn-propose" onclick="openProposeModal()">+ Propose New Action</button>
+      </div>`;
+    return;
+  }
+  content.innerHTML = '<div class="req-list" id="req-list"></div>';
+  const list = document.getElementById('req-list');
+  for (const req of myRequests) {
+    list.appendChild(buildRequestCard(req));
+  }
+}
+
+function buildRequestCard(req) {
+  const card = document.createElement('div');
+  card.className = 'req-card';
+  const typeLabel = req.type === 'add' ? '+ New Action' : '× Deletion';
+  const date = req.created_at ? new Date(req.created_at).toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' }) : '';
+  const reviewerHtml = req.reviewer_note
+    ? `<div class="req-reviewer-note"><strong>Reviewer note:</strong> ${req.reviewer_note}</div>`
+    : '';
+  const fixHtml = req.fix_description
+    ? `<div class="req-field"><strong>How to fix:</strong> ${req.fix_description}</div>`
+    : '';
+
+  card.innerHTML = `
+    <div class="req-top">
+      <span class="req-type-badge ${req.type}">${typeLabel}</span>
+      <span class="req-status-badge ${req.status}">${req.status}</span>
+      <div class="req-summary">${req.problem_summary}</div>
+    </div>
+    ${fixHtml}
+    <div class="req-field"><strong>Reason:</strong> ${req.reason}</div>
+    ${reviewerHtml}
+    <div class="req-meta">Submitted ${date}${req.status === 'pending' ? ' · <span style="color:var(--warning,#f59e0b)">Awaiting admin review</span>' : ''}</div>
+    ${req.status === 'pending' ? `<button class="btn-cancel-request" data-id="${req.id}">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      Cancel Request
+    </button>` : ''}`;
+
+  const cancelBtn = card.querySelector('.btn-cancel-request');
+  if (cancelBtn) cancelBtn.addEventListener('click', () => cancelRequest(req.id, cancelBtn));
+  return card;
+}
+
+// ── Propose modal ────────────────────────────────────────────────────
+function openProposeModal() {
+  document.getElementById('f-problem').value = '';
+  document.getElementById('f-fix').value = '';
+  document.getElementById('f-reason').value = '';
+  document.getElementById('modal-propose').classList.add('open');
+  document.getElementById('f-problem').focus();
+}
+function closeProposeModal() {
+  document.getElementById('modal-propose').classList.remove('open');
+}
+function closeProposeIfBg(e) {
+  if (e.target === e.currentTarget) closeProposeModal();
+}
+
+async function submitProposal() {
+  const problem = document.getElementById('f-problem').value.trim();
+  const fix = document.getElementById('f-fix').value.trim();
+  const reason = document.getElementById('f-reason').value.trim() || 'IT request';
+  if (!problem || !fix) {
+    showToast('Please fill in the required fields', 'error');
+    return;
+  }
+  const btn = document.getElementById('btn-propose-submit');
+  btn.disabled = true; btn.textContent = 'Submitting…';
+  try {
+    let res;
+    try {
+      res = await fetch('/api/pending-changes', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'add', problem_summary: problem, fix_description: fix, reason }),
+      });
+    } catch (netErr) {
+      throw new Error('Server unreachable — make sure the backend is running');
+    }
+    if (res.status === 401) throw new Error('Session expired — please refresh and log in again');
+    if (!res.ok) {
+      const body = await res.text().catch(() => '');
+      throw new Error(`HTTP ${res.status}${body ? ': ' + body.slice(0, 80) : ''}`);
+    }
+    closeProposeModal();
+    showToast('Proposal submitted — awaiting Voodo approval');
+    await loadMyRequests();
+  } catch (e) {
+    showToast(`Error: ${e.message}`, 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Submit for Approval';
+  }
+}
+
+// ── Delete modal ─────────────────────────────────────────────────────
+function openDeleteModal(id, summary) {
+  pendingDeleteId = id;
+  document.getElementById('del-summary').textContent = summary;
+  document.getElementById('del-reason').value = '';
+  document.getElementById('modal-delete').classList.add('open');
+  document.getElementById('del-reason').focus();
+}
+function closeDeleteModal() {
+  document.getElementById('modal-delete').classList.remove('open');
+  pendingDeleteId = null;
+}
+function closeDeleteIfBg(e) {
+  if (e.target === e.currentTarget) closeDeleteModal();
+}
+
+async function submitDeletion() {
+  const reason = document.getElementById('del-reason').value.trim();
+  const summary = document.getElementById('del-summary').textContent;
+  if (!reason) {
+    showToast('Please provide a reason for deletion', 'error');
+    return;
+  }
+  const btn = document.getElementById('btn-delete-submit');
+  btn.disabled = true; btn.textContent = 'Submitting…';
+  try {
+    const res = await fetch('/api/pending-changes', {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: 'delete', solution_id: pendingDeleteId, problem_summary: summary, reason }),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    closeDeleteModal();
+    showToast('Deletion request submitted — awaiting Voodo approval');
+    await loadMyRequests();
+  } catch (e) {
+    showToast(`Error: ${e.message}`, 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Request Deletion';
+  }
+}
+
+// ── Init ─────────────────────────────────────────────────────────────
+window.addEventListener('storage', (e) => {
+  if (e.key !== 'voodo-theme') return;
+  const label = document.getElementById('themeLabel');
+  if (e.newValue === 'light') {
+    document.documentElement.classList.add('light');
+    if (label) label.textContent = 'Dark Mode';
+  } else {
+    document.documentElement.classList.remove('light');
+    if (label) label.textContent = 'Light Mode';
+  }
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+  const saved = localStorage.getItem('voodo-theme');
+  if (saved === 'light') {
+    document.documentElement.classList.add('light');
+    document.getElementById('themeLabel').textContent = 'Dark Mode';
+  }
+  loadSolutions();
+  loadMyRequests();
+});
+
+function toggleTheme() {
+  const html = document.documentElement;
+  const label = document.getElementById('themeLabel');
+  if (html.classList.contains('light')) {
+    html.classList.remove('light');
+    label.textContent = 'Light Mode';
+    localStorage.setItem('voodo-theme', 'dark');
+  } else {
+    html.classList.add('light');
+    label.textContent = 'Dark Mode';
+    localStorage.setItem('voodo-theme', 'light');
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,33 @@
+.git/
+.gitignore
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+.env
+.env.local
+
+screenshots/
+runs/
+*.log
+
+# Don't bake static assets that the backend serves — they're mounted at runtime.
+# Keep README & docs out of the image.
+README.md
+*.md
+
+# Windows-side code never goes into the backend image.
+client/
+
+# Server-side launch scripts run on the host, not inside the image.
+server/scripts/
+server/docker/
+
+# Editor / harness state.
+.vscode/
+.idea/

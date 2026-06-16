@@ -1,0 +1,43 @@
+# voodo backend image — FastAPI chat UI + agent loop + DB client.
+#
+# Build context is the repo root (see docker-compose.yml `context: ../..`).
+# Multistage isn't useful here (no compile step); we install deps onto a
+# slim Python base, then optionally mount source at runtime via compose so
+# code edits reload without rebuilding the image.
+FROM python:3.12-slim
+
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends curl ca-certificates \
+ && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Install Python deps first (top of the cache key). Source is bind-mounted
+# at runtime so it doesn't have to be baked into the image.
+COPY server/app/requirements.txt    /tmp/req-app.txt
+COPY server/agent/requirements.txt  /tmp/req-agent.txt
+COPY server/db/requirements.txt     /tmp/req-db.txt
+RUN pip install -r /tmp/req-app.txt -r /tmp/req-agent.txt -r /tmp/req-db.txt \
+ && rm -f /tmp/req-*.txt
+
+# Fallback: also copy source into the image so the container can run
+# stand-alone without bind mounts.
+COPY shared/         /app/shared/
+COPY server/agent/   /app/server/agent/
+COPY server/db/      /app/server/db/
+COPY server/app/     /app/server/app/
+# Empty package marker so `import server` resolves.
+RUN touch /app/server/__init__.py
+
+ENV PYTHONPATH=/app
+EXPOSE 7860
+
+HEALTHCHECK --interval=10s --timeout=3s --retries=3 \
+    CMD curl -sf http://localhost:7860/health || exit 1
+
+CMD ["uvicorn", "server.app.main:app", "--host", "0.0.0.0", "--port", "7860"]

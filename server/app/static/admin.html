@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Voo.do | Approval Panel</title>
+  <script>if(localStorage.getItem('voodo-theme')==='light')document.documentElement.classList.add('light');</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #080c14;
+      --card-bg: rgba(18, 24, 38, 0.7);
+      --card-border: rgba(255, 255, 255, 0.07);
+      --header-bg: rgba(8,12,20,0.9);
+      --folder-bg: rgba(255, 255, 255, 0.03);
+      --folder-border: rgba(255, 255, 255, 0.06);
+      --text: #e2e8f0;
+      --text-strong: #f1f5f9;
+      --muted: #64748b;
+      --accent: #3b82f6;
+      --accent-soft: rgba(59, 130, 246, 0.12);
+      --success: #10b981;
+      --error: #ef4444;
+      --warning: #f59e0b;
+      --chip-bg: rgba(255,255,255,0.05);
+      --scrollbar-thumb: rgba(255,255,255,0.08);
+      --card-hover-border: rgba(255,255,255,0.12);
+    }
+    html.light {
+      --bg: #f0f4f8;
+      --card-bg: rgba(255,255,255,0.9);
+      --card-border: rgba(0,0,0,0.08);
+      --header-bg: rgba(240,244,248,0.95);
+      --folder-bg: rgba(0,0,0,0.02);
+      --folder-border: rgba(0,0,0,0.07);
+      --text: #1e293b;
+      --text-strong: #0f172a;
+      --muted: #64748b;
+      --accent: #2563eb;
+      --accent-soft: rgba(37,99,235,0.1);
+      --success: #059669;
+      --error: #dc2626;
+      --warning: #d97706;
+      --chip-bg: rgba(0,0,0,0.05);
+      --scrollbar-thumb: rgba(0,0,0,0.12);
+      --card-hover-border: rgba(0,0,0,0.15);
+    }
+    *, *::before, *::after {
+      transition: background-color 0.25s ease, border-color 0.25s ease, color 0.15s ease;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      background-image:
+        radial-gradient(ellipse at 15% 30%, rgba(59,130,246,0.06) 0%, transparent 50%),
+        radial-gradient(ellipse at 85% 15%, rgba(167,139,250,0.05) 0%, transparent 40%);
+    }
+
+    header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 40px;
+      border-bottom: 1px solid var(--card-border);
+      background: var(--header-bg);
+      backdrop-filter: blur(16px);
+      position: sticky; top: 0; z-index: 100;
+    }
+    .logo-wrap { display: flex; align-items: center; gap: 10px; }
+    .logo { font-size: 22px; font-weight: 700; background: linear-gradient(135deg,#60a5fa,#a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .pill { font-size: 10px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; padding: 3px 8px; border-radius: 4px; }
+    .pill-admin { background: rgba(167,139,250,0.15); color: #c4b5fd; border: 1px solid rgba(167,139,250,0.25); }
+    .header-right { display: flex; align-items: center; gap: 12px; }
+
+    .theme-toggle {
+      display: flex; align-items: center; gap: 8px;
+      background: var(--folder-bg); border: 1px solid var(--card-border);
+      border-radius: 20px; padding: 5px 12px 5px 8px;
+      cursor: pointer; font-size: 12px; font-weight: 500; color: var(--muted);
+      font-family: 'Inter', sans-serif; transition: all 0.2s;
+    }
+    .theme-toggle:hover { border-color: var(--accent); color: var(--text); background: var(--accent-soft); }
+    .logout-btn {
+      background: var(--folder-bg); border: 1px solid var(--card-border);
+      border-radius: 20px; padding: 5px 14px;
+      cursor: pointer; font-size: 12px; font-weight: 500; color: var(--muted);
+      font-family: 'Inter', sans-serif; transition: all 0.2s;
+    }
+    .logout-btn:hover { border-color: #ef4444; color: #ef4444; background: rgba(239,68,68,0.08); }
+    .toggle-track { width: 32px; height: 18px; background: var(--card-border); border-radius: 9px; position: relative; transition: background 0.25s; flex-shrink: 0; }
+    html.light .toggle-track { background: var(--accent); }
+    .toggle-thumb { position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; background: white; border-radius: 50%; transition: transform 0.25s ease; box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
+    html.light .toggle-thumb { transform: translateX(14px); }
+
+    /* ── Tabs ── */
+    .tabs-bar {
+      display: flex; align-items: center; gap: 4px;
+      padding: 20px 40px 0;
+      border-bottom: 1px solid var(--card-border);
+    }
+    .tab {
+      padding: 10px 20px; border-radius: 8px 8px 0 0;
+      font-size: 13px; font-weight: 500; color: var(--muted);
+      cursor: pointer; border: 1px solid transparent; border-bottom: none;
+      transition: all 0.15s; position: relative; bottom: -1px;
+    }
+    .tab:hover { color: var(--text); background: var(--folder-bg); }
+    .tab.active {
+      color: var(--text-strong); background: var(--card-bg);
+      border-color: var(--card-border);
+    }
+    .tab .badge {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-width: 18px; height: 18px; border-radius: 9px;
+      font-size: 10px; font-weight: 700; padding: 0 5px;
+      margin-left: 6px;
+    }
+    .badge-pending { background: rgba(245,158,11,0.2); color: var(--warning); }
+    .badge-approved { background: rgba(16,185,129,0.15); color: var(--success); }
+    .badge-rejected { background: rgba(239,68,68,0.1); color: var(--error); }
+
+    /* ── Content ── */
+    .content { flex: 1; padding: 32px 40px 60px; overflow-y: auto; max-width: 900px; width: 100%; margin: 0 auto; }
+    .content::-webkit-scrollbar { width: 6px; }
+    .content::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 4px; }
+
+    /* ── Change cards ── */
+    .change-list { display: flex; flex-direction: column; gap: 16px; }
+
+    .change-card {
+      background: var(--card-bg); border: 1px solid var(--card-border);
+      border-radius: 14px; overflow: hidden;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .change-card:hover { border-color: var(--card-hover-border); box-shadow: 0 4px 20px rgba(0,0,0,0.12); }
+
+    .change-body { padding: 20px 24px; display: flex; flex-direction: column; gap: 12px; }
+
+    .change-top { display: flex; align-items: flex-start; gap: 10px; flex-wrap: wrap; }
+    .type-badge {
+      font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 6px; flex-shrink: 0;
+    }
+    .type-badge.add { background: rgba(59,130,246,0.15); color: #60a5fa; border: 1px solid rgba(59,130,246,0.2); }
+    .type-badge.delete { background: rgba(239,68,68,0.1); color: var(--error); border: 1px solid rgba(239,68,68,0.2); }
+    .change-summary { font-size: 15px; font-weight: 600; color: var(--text-strong); flex: 1; line-height: 1.4; }
+
+    .change-field { font-size: 13px; color: var(--muted); line-height: 1.55; }
+    .change-field strong { color: var(--text); font-weight: 500; }
+
+    .change-meta { font-size: 11px; color: var(--muted); display: flex; gap: 12px; flex-wrap: wrap; }
+
+    .reviewer-note-box {
+      font-size: 12px; background: var(--folder-bg); border: 1px solid var(--folder-border);
+      border-radius: 8px; padding: 10px 14px; color: var(--text); line-height: 1.5;
+    }
+    .reviewer-note-box strong { color: var(--accent); }
+
+    details.steps-wrap { background: var(--folder-bg); border: 1px solid var(--folder-border); border-radius: 8px; overflow: hidden; }
+    details > summary { list-style: none; }
+    details > summary::-webkit-details-marker { display: none; }
+    .steps-toggle {
+      padding: 9px 14px; font-size: 12px; font-weight: 500; color: var(--muted);
+      cursor: pointer; display: flex; align-items: center; gap: 6px; transition: color 0.15s;
+    }
+    .steps-toggle:hover { color: var(--text); }
+    .steps-body {
+      padding: 12px 14px; border-top: 1px solid var(--folder-border);
+      font-family: 'Consolas','Monaco',monospace; font-size: 11.5px; color: #a5b4fc;
+      white-space: pre-wrap; max-height: 220px; overflow-y: auto;
+    }
+    html.light .steps-body { color: #3730a3; }
+    .chevron-sm { transition: transform 0.2s; flex-shrink: 0; }
+    details[open] .chevron-sm { transform: rotate(90deg); }
+    .source-agent { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 4px; background: rgba(167,139,250,0.12); color: #c4b5fd; border: 1px solid rgba(167,139,250,0.2); flex-shrink: 0; }
+
+    /* ── Action area (pending only) ── */
+    .change-actions {
+      border-top: 1px solid var(--card-border);
+      padding: 16px 24px;
+      display: flex; flex-direction: column; gap: 10px;
+      background: var(--folder-bg);
+    }
+    .note-input {
+      background: rgba(255,255,255,0.05); border: 1px solid var(--card-border);
+      border-radius: 8px; padding: 9px 12px;
+      color: var(--text); font-size: 13px; font-family: inherit;
+      outline: none; resize: none; width: 100%;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .note-input:focus { border-color: rgba(59,130,246,0.4); background: rgba(59,130,246,0.05); }
+    .note-input::placeholder { color: var(--muted); }
+    .action-buttons { display: flex; gap: 8px; }
+    .btn-approve {
+      background: var(--success); color: white; border: none;
+      border-radius: 8px; padding: 8px 20px; font-size: 13px; font-weight: 600;
+      cursor: pointer; font-family: inherit; transition: opacity 0.2s;
+    }
+    .btn-approve:hover { opacity: 0.85; }
+    .btn-approve:disabled { opacity: 0.45; cursor: not-allowed; }
+    .btn-reject {
+      background: transparent; color: var(--error);
+      border: 1px solid rgba(239,68,68,0.3); border-radius: 8px;
+      padding: 8px 20px; font-size: 13px; font-weight: 600;
+      cursor: pointer; font-family: inherit; transition: all 0.2s;
+    }
+    .btn-reject:hover { background: rgba(239,68,68,0.08); border-color: rgba(239,68,68,0.5); }
+    .btn-reject:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    /* ── States ── */
+    .state-center { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 80px 0; gap: 16px; color: var(--muted); }
+    .spinner { width: 28px; height: 28px; border: 3px solid rgba(255,255,255,0.08); border-radius: 50%; border-top-color: var(--accent); animation: spin 0.9s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Toast ── */
+    .toast {
+      position: fixed; bottom: 24px; right: 24px;
+      padding: 12px 20px; border-radius: 10px;
+      font-size: 13px; font-weight: 500; z-index: 2000;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+      animation: toast-in 0.3s ease;
+    }
+    .toast.success { background: rgba(16,185,129,0.92); color: white; }
+    .toast.error { background: rgba(239,68,68,0.92); color: white; }
+    @keyframes toast-in { from { transform: translateY(16px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+    .empty-state { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 60px 0; color: var(--muted); }
+    .stats-bar { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
+    .stat-chip {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 12px; font-weight: 500;
+      padding: 6px 14px; border-radius: 8px;
+      border: 1px solid var(--card-border); background: var(--card-bg);
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo-wrap">
+    <div class="logo">Voo.do</div>
+    <div class="pill pill-admin">Approval Panel</div>
+  </div>
+  <div class="header-right">
+    <button class="theme-toggle" onclick="toggleTheme()">
+      <div class="toggle-track"><div class="toggle-thumb"></div></div>
+      <span id="themeLabel">Light Mode</span>
+    </button>
+    <button class="logout-btn" onclick="logoutAdmin()" title="Log out">Log out</button>
+  </div>
+</header>
+
+<div class="tabs-bar">
+  <div class="tab active" id="tab-pending" onclick="setTab('pending')">
+    Pending <span class="badge badge-pending" id="badge-pending">0</span>
+  </div>
+  <div class="tab" id="tab-approved" onclick="setTab('approved')">
+    Approved <span class="badge badge-approved" id="badge-approved">0</span>
+  </div>
+  <div class="tab" id="tab-rejected" onclick="setTab('rejected')">
+    Rejected <span class="badge badge-rejected" id="badge-rejected">0</span>
+  </div>
+</div>
+
+<div class="content" id="content">
+  <div class="state-center">
+    <div class="spinner"></div>
+    <span>Loading requests…</span>
+  </div>
+</div>
+
+<script>
+let allChanges = [];
+let activeTab = 'pending';
+
+function showToast(msg, type = 'success') {
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 3500);
+}
+
+async function loadChanges() {
+  try {
+    const res = await fetch('/api/admin/pending-changes', { credentials: 'same-origin' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    allChanges = await res.json();
+    updateBadges();
+    render();
+  } catch (e) {
+    document.getElementById('content').innerHTML = `
+      <div class="state-center">
+        <span style="color:#ef4444;font-size:28px">⚠️</span>
+        <span style="color:#ef4444">Failed to load: ${e.message}</span>
+      </div>`;
+  }
+}
+
+function updateBadges() {
+  ['pending','approved','rejected'].forEach(s => {
+    document.getElementById(`badge-${s}`).textContent = allChanges.filter(c => c.status === s).length;
+  });
+}
+
+function setTab(tab) {
+  activeTab = tab;
+  document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+  document.getElementById(`tab-${tab}`).classList.add('active');
+  render();
+}
+
+function render() {
+  const filtered = allChanges.filter(c => c.status === activeTab);
+  const content = document.getElementById('content');
+
+  if (filtered.length === 0) {
+    const labels = { pending: 'No pending requests', approved: 'No approved requests', rejected: 'No rejected requests' };
+    const icons  = { pending: '📋', approved: '✅', rejected: '❌' };
+    content.innerHTML = `<div class="empty-state"><span style="font-size:36px">${icons[activeTab]}</span><span>${labels[activeTab]}</span></div>`;
+    return;
+  }
+
+  content.innerHTML = '<div class="change-list" id="change-list"></div>';
+  const list = document.getElementById('change-list');
+  for (const ch of filtered) {
+    list.appendChild(buildChangeCard(ch));
+  }
+}
+
+function buildChangeCard(ch) {
+  const wrap = document.createElement('div');
+  wrap.className = 'change-card';
+  wrap.id = `card-${ch.id}`;
+
+  const typeLabel = ch.type === 'add' ? '+ New Action' : '× Deletion Request';
+  const isAgent = ch.submitted_by === 'agent';
+  const date = ch.created_at
+    ? new Date(ch.created_at).toLocaleString('en-GB', { day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' })
+    : '';
+  const reviewedDate = ch.reviewed_at
+    ? new Date(ch.reviewed_at).toLocaleString('en-GB', { day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' })
+    : '';
+
+  const fixHtml = ch.fix_description
+    ? `<div class="change-field"><strong>${isAgent ? 'Agent summary:' : 'How to fix:'}</strong> ${ch.fix_description}</div>`
+    : '';
+
+  // Show collapsible steps for agent-submitted solutions
+  let stepsHtml = '';
+  const steps = ch.steps;
+  if (isAgent && Array.isArray(steps) && steps.length > 0) {
+    const stepsJson = JSON.stringify(steps, null, 2);
+    stepsHtml = `
+      <details class="steps-wrap">
+        <summary>
+          <div class="steps-toggle">
+            <svg class="chevron-sm" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+            Execution Steps (${steps.length})
+          </div>
+        </summary>
+        <pre class="steps-body">${stepsJson}</pre>
+      </details>`;
+  }
+
+  const reviewerHtml = ch.reviewer_note
+    ? `<div class="reviewer-note-box"><strong>Reviewer note:</strong> ${ch.reviewer_note}</div>`
+    : '';
+
+  const rejectPlaceholder = isAgent
+    ? 'Reason for rejection (required — shown to IT admin)…'
+    : 'Reason for rejection (required — shown to IT admin)…';
+
+  const actionsHtml = ch.status === 'pending' ? `
+    <div class="change-actions">
+      <textarea class="note-input" id="note-${ch.id}" rows="2" placeholder="Optional note for approval, required for rejection…"></textarea>
+      <div class="action-buttons">
+        <button class="btn-approve" id="approve-${ch.id}" onclick="doApprove('${ch.id}')">Approve</button>
+        <button class="btn-reject"  id="reject-${ch.id}"  onclick="doReject('${ch.id}')">Reject</button>
+      </div>
+    </div>` : '';
+
+  wrap.innerHTML = `
+    <div class="change-body">
+      <div class="change-top">
+        <span class="type-badge ${ch.type}">${typeLabel}</span>
+        ${isAgent ? '<span class="source-agent">🤖 Agent</span>' : ''}
+        <div class="change-summary">${ch.problem_summary}</div>
+      </div>
+      ${fixHtml}
+      ${stepsHtml}
+      <div class="change-field"><strong>Reason:</strong> ${ch.reason}</div>
+      ${reviewerHtml}
+      <div class="change-meta">
+        <span>Submitted by <strong>${ch.submitted_by}</strong></span>
+        <span>${date}</span>
+        ${reviewedDate ? `<span>Reviewed ${reviewedDate}</span>` : ''}
+      </div>
+    </div>
+    ${actionsHtml}`;
+  return wrap;
+}
+
+async function doApprove(id) {
+  const note = document.getElementById(`note-${id}`)?.value.trim() || null;
+  await doAction(id, 'approve', note);
+}
+async function doReject(id) {
+  const note = document.getElementById(`note-${id}`)?.value.trim() || null;
+  if (!note) {
+    showToast('Please add a note explaining the rejection', 'error');
+    return;
+  }
+  await doAction(id, 'reject', note);
+}
+
+async function doAction(id, action, note) {
+  const approveBtn = document.getElementById(`approve-${id}`);
+  const rejectBtn  = document.getElementById(`reject-${id}`);
+  if (approveBtn) approveBtn.disabled = true;
+  if (rejectBtn)  rejectBtn.disabled  = true;
+
+  try {
+    const res = await fetch(`/api/admin/pending-changes/${id}/${action}`, {
+      method: 'PUT',
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ note }),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    showToast(action === 'approve' ? 'Approved and applied to agent!' : 'Request rejected');
+    await loadChanges();
+  } catch (e) {
+    showToast(`Error: ${e.message}`, 'error');
+    if (approveBtn) approveBtn.disabled = false;
+    if (rejectBtn)  rejectBtn.disabled  = false;
+  }
+}
+
+window.addEventListener('storage', (e) => {
+  if (e.key !== 'voodo-theme') return;
+  const label = document.getElementById('themeLabel');
+  if (e.newValue === 'light') {
+    document.documentElement.classList.add('light');
+    if (label) label.textContent = 'Dark Mode';
+  } else {
+    document.documentElement.classList.remove('light');
+    if (label) label.textContent = 'Light Mode';
+  }
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+  const saved = localStorage.getItem('voodo-theme');
+  if (saved === 'light') {
+    document.documentElement.classList.add('light');
+    document.getElementById('themeLabel').textContent = 'Dark Mode';
+  }
+  loadChanges();
+});
+
+function logoutAdmin() {
+  // Invalidate the browser's Basic Auth cache by hitting /admin with
+  // bogus credentials so the next visit re-prompts.
+  try {
+    const xhr = new XMLHttpRequest();
+    xhr.open('GET', '/admin', false, '__logout__', '__logout__');
+    xhr.send();
+  } catch (_) {}
+  window.location.href = '/';
+}
+
+function toggleTheme() {
+  const html = document.documentElement;
+  const label = document.getElementById('themeLabel');
+  if (html.classList.contains('light')) {
+    html.classList.remove('light');
+    label.textContent = 'Light Mode';
+    localStorage.setItem('voodo-theme', 'dark');
+  } else {
+    html.classList.add('light');
+    label.textContent = 'Dark Mode';
+    localStorage.setItem('voodo-theme', 'light');
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>voo.do — Elite Tech Support Agent</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css" />
+  <script>if(localStorage.getItem('voodo-theme')==='light')document.documentElement.classList.add('light');</script>
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+    <div class="sidebar-header">
+        <div class="logo">
+          <svg class="robot-logo" viewBox="0 0 40 44" width="38" height="38" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <radialGradient id="rHead" cx="38%" cy="28%" r="72%">
+                <stop offset="0%" stop-color="#e8eef8"/>
+                <stop offset="60%" stop-color="#b8c8df"/>
+                <stop offset="100%" stop-color="#7a95b8"/>
+              </radialGradient>
+              <radialGradient id="rEar" cx="30%" cy="30%" r="70%">
+                <stop offset="0%" stop-color="#c5d3e8"/>
+                <stop offset="100%" stop-color="#8099b8"/>
+              </radialGradient>
+              <radialGradient id="rEye" cx="38%" cy="32%" r="62%">
+                <stop offset="0%" stop-color="#d0f8ff"/>
+                <stop offset="35%" stop-color="#40d8f8"/>
+                <stop offset="100%" stop-color="#0088bb"/>
+              </radialGradient>
+              <filter id="eyeBloom" x="-100%" y="-100%" width="300%" height="300%">
+                <feGaussianBlur in="SourceGraphic" stdDeviation="2.2" result="b"/>
+                <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+              </filter>
+              <filter id="headShadow" x="-10%" y="-5%" width="120%" height="120%">
+                <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#4a6a9a" flood-opacity="0.35"/>
+              </filter>
+            </defs>
+            <!-- Ear left -->
+            <rect x="0" y="17" width="7" height="11" rx="3.5" fill="url(#rEar)"/>
+            <rect x="1.5" y="19.5" width="3" height="6" rx="1.5" fill="#1a2030" opacity="0.4"/>
+            <!-- Ear right -->
+            <rect x="33" y="17" width="7" height="11" rx="3.5" fill="url(#rEar)"/>
+            <rect x="35.5" y="19.5" width="3" height="6" rx="1.5" fill="#1a2030" opacity="0.4"/>
+            <!-- Head body -->
+            <rect x="6" y="5" width="28" height="35" rx="10" fill="url(#rHead)" filter="url(#headShadow)"/>
+            <!-- Top nub -->
+            <rect x="16" y="2" width="8" height="7" rx="3.5" fill="#b8c8df"/>
+            <rect x="18" y="1" width="4" height="4" rx="2" fill="#9aafc8"/>
+            <!-- Face visor (dark panel) -->
+            <rect x="9" y="12" width="22" height="22" rx="6" fill="#0d1825"/>
+            <!-- Inner visor sheen -->
+            <rect x="10" y="13" width="10" height="4" rx="2" fill="white" opacity="0.04"/>
+            <!-- Eye left -->
+            <ellipse class="r-eye r-eye-left" cx="15.5" cy="23" rx="4.5" ry="5.8" fill="url(#rEye)" filter="url(#eyeBloom)"/>
+            <!-- Eye right -->
+            <ellipse class="r-eye r-eye-right" cx="24.5" cy="23" rx="4.5" ry="5.8" fill="url(#rEye)" filter="url(#eyeBloom)"/>
+            <!-- Eye highlight dots (LED pixel feel) -->
+            <circle cx="13.8" cy="20.5" r="1.1" fill="white" opacity="0.55"/>
+            <circle cx="22.8" cy="20.5" r="1.1" fill="white" opacity="0.55"/>
+            <circle cx="15" cy="19.5" r="0.5" fill="white" opacity="0.3"/>
+            <circle cx="24" cy="19.5" r="0.5" fill="white" opacity="0.3"/>
+          </svg>
+          <h1>voo.do</h1>
+        </div>
+      </div>
+
+      <!-- Conversations -->
+      <div class="conversations-section">
+        <div class="conversations-header">
+          <h3 class="section-label" style="margin:0;">Chats</h3>
+          <button class="btn-new-chat" id="btn-new-chat" title="New conversation">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+        </div>
+        <div class="conv-list" id="conv-list"></div>
+      </div>
+
+
+
+      <!-- IT Portal: subtle link for authorized staff -->
+      <div style="margin-top: auto; padding-top: 24px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:0 10px 12px;">
+          <button class="theme-toggle-main" id="mainThemeToggle" onclick="toggleMainTheme()" title="Switch theme">
+            <div class="toggle-track-main"><div class="toggle-thumb-main"></div></div>
+            <span id="mainThemeLabel">Light</span>
+          </button>
+          <span id="status" class="status disconnected">offline</span>
+        </div>
+        <a href="/it" class="it-portal-btn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          IT Portal
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left:auto;opacity:0.5"><polyline points="9 18 15 12 9 6"/></svg>
+        </a>
+      </div>
+
+    </aside>
+
+
+    <!-- Main Workspace -->
+    <main class="workspace">
+      <div id="chat">
+        <div class="typing-indicator" id="typing-indicator" style="display:none;">
+          <span></span><span></span><span></span>
+        </div>
+      </div>
+      
+      <div class="input-area">
+        <input type="file" id="img-input" accept="image/*" style="display:none;position:absolute;" />
+        <form id="composer" autocomplete="off">
+          <div id="img-preview-bar" class="img-preview-bar" style="display:none;">
+            <div class="img-preview-wrap">
+              <img id="img-preview-thumb" src="" alt="preview" />
+              <button type="button" id="img-remove-btn" class="img-remove-btn" title="Remove image">
+                <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="input-wrapper">
+            <button type="button" class="btn-icon img-btn" id="img-btn" title="Attach image">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            </button>
+            <input
+              id="input"
+              type="text"
+              placeholder="Ask anything, @ to mention, / for workflow..."
+              autofocus
+            />
+            <div class="model-selector" id="model-selector">
+              <span id="model-selected">Control My Computer</span>
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+              <div class="model-dropdown" id="model-dropdown">
+                <div class="model-option active" data-value="control">Control My Computer</div>
+                <div class="model-option" data-value="guide">Show Me What to Click</div>
+              </div>
+            </div>
+            <button type="submit" class="btn-send" id="btn-send" title="Send message">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+            </button>
+            <button type="button" class="btn-stop" id="btn-stop" title="Stop agent" style="display:none;">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
+            </button>
+          </div>
+        </form>
+      </div>
+    </main>
+  </div>
+  <script src="/static/app.js"></script>
+  <script>
+    function toggleMainTheme() {
+      const html = document.documentElement;
+      const label = document.getElementById('mainThemeLabel');
+      if (html.classList.contains('light')) {
+        html.classList.remove('light');
+        label.textContent = 'Light';
+        localStorage.setItem('voodo-theme', 'dark');
+      } else {
+        html.classList.add('light');
+        label.textContent = 'Dark';
+        localStorage.setItem('voodo-theme', 'light');
+      }
+    }
+
+    window.addEventListener('storage', (e) => {
+      if (e.key !== 'voodo-theme') return;
+      const label = document.getElementById('mainThemeLabel');
+      if (e.newValue === 'light') {
+        document.documentElement.classList.add('light');
+        if (label) label.textContent = 'Dark';
+      } else {
+        document.documentElement.classList.remove('light');
+        if (label) label.textContent = 'Light';
+      }
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const saved = localStorage.getItem('voodo-theme');
+      const label = document.getElementById('mainThemeLabel');
+      if (saved === 'light' && label) label.textContent = 'Dark';
+
+      const selector = document.getElementById('model-selector');
+      const dropdown = document.getElementById('model-dropdown');
+      const selectedLabel = document.getElementById('model-selected');
+
+      selector.addEventListener('click', (e) => {
+        e.stopPropagation();
+        dropdown.classList.toggle('open');
+      });
+
+      // Restore saved mode
+      const savedMode = localStorage.getItem('voodo-mode');
+      if (savedMode) {
+        const savedOpt = dropdown.querySelector(`[data-value="${savedMode}"]`);
+        if (savedOpt) {
+          dropdown.querySelectorAll('.model-option').forEach(o => o.classList.remove('active'));
+          savedOpt.classList.add('active');
+          selectedLabel.textContent = savedOpt.textContent;
+        }
+      }
+
+      dropdown.querySelectorAll('.model-option').forEach(opt => {
+        opt.addEventListener('click', (e) => {
+          e.stopPropagation();
+          dropdown.querySelectorAll('.model-option').forEach(o => o.classList.remove('active'));
+          opt.classList.add('active');
+          selectedLabel.textContent = opt.textContent;
+          localStorage.setItem('voodo-mode', opt.dataset.value);
+          dropdown.classList.remove('open');
+        });
+      });
+
+      document.addEventListener('click', () => dropdown.classList.remove('open'));
+    });
+  </script>
+
+  <!-- Keyboard/mouse permission popup -->
+  <div id="permission-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(6px);align-items:center;justify-content:center;z-index:9999;">
+    <div style="background:#1e1e2e;border-radius:14px;padding:36px 32px;text-align:center;max-width:420px;width:90%;box-shadow:0 12px 40px rgba(0,0,0,.5);">
+      <div style="font-size:2.6rem;margin-bottom:14px;">🖱️⌨️</div>
+      <h3 style="margin:0 0 10px;font-size:1.15rem;color:#fff;">Permission Required</h3>
+      <p id="permission-msg" style="margin:0 0 28px;color:#bbb;font-size:.9rem;line-height:1.5;">The agent needs to use keyboard or mouse to continue.</p>
+      <div style="display:flex;gap:12px;justify-content:center;">
+        <button id="btn-deny-kb"  style="padding:10px 24px;border-radius:8px;background:transparent;color:#e06c75;border:1px solid #e06c75;cursor:pointer;font-size:.95rem;font-family:inherit;">Deny &amp; Stop</button>
+        <button id="btn-allow-kb" style="padding:10px 24px;border-radius:8px;background:#4f6ef7;color:#fff;border:none;cursor:pointer;font-size:.95rem;font-family:inherit;font-weight:600;">Allow</button>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,78 @@
+# Backend stack for voodo: Postgres + FastAPI backend.
+#
+# The LLM is hosted on OpenRouter (no local model server).
+# The Windows executor runs natively on the user's machine and dials this
+# backend on `ws://<host>:7860/executor`.
+#
+# Usage (run from repo root):
+#   docker compose build
+#   docker compose up -d
+#   docker compose logs -f backend
+#   docker compose down
+
+name: voodo
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: voodo-db
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-voodo}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: ${POSTGRES_DB:-voodo}
+    volumes:
+      - voodo-db-data:/var/lib/postgresql/data
+      - ./server/db/schema.sql:/docker-entrypoint-initdb.d/00-schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-voodo} -d ${POSTGRES_DB:-voodo}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: .
+      dockerfile: server/docker/Dockerfile.backend
+    image: voodo-backend:latest
+    container_name: voodo-backend
+    ports:
+      - "${APP_PORT:-7860}:7860"
+    environment:
+      # LLM provider — OpenRouter (OpenAI-compatible hosted gateway).
+      OPENROUTER_BASE_URL: ${OPENROUTER_BASE_URL:-https://openrouter.ai/api/v1}
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:?set OPENROUTER_API_KEY in .env}
+      LLM_MODEL: ${LLM_MODEL:-qwen/qwen3-vl-235b-a22b-thinking}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-voodo}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-voodo}
+      EXECUTOR_TOKEN: ${EXECUTOR_TOKEN:?set EXECUTOR_TOKEN in .env}
+      IT_USERNAME: ${IT_USERNAME:-admin}
+      IT_PASSWORD: ${IT_PASSWORD:?set IT_PASSWORD in .env}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?set ADMIN_PASSWORD in .env}
+      APP_HOST: 0.0.0.0
+      APP_PORT: "7860"
+      AGENT_MAX_STEPS: ${AGENT_MAX_STEPS:-15}
+      SIMILARITY_THRESHOLD: ${SIMILARITY_THRESHOLD:-0.85}
+    # Bind-mount source for hot-reload via uvicorn --reload (dev ergonomics).
+    volumes:
+      - ./shared:/app/shared:ro
+      - ./server/agent:/app/server/agent:ro
+      - ./server/db:/app/server/db:ro
+      - ./server/app:/app/server/app:ro
+    command:
+      - uvicorn
+      - server.app.main:app
+      - --host
+      - 0.0.0.0
+      - --port
+      - "7860"
+      - --reload
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  voodo-db-data:
+    name: voodo-db-data
